@@ -1,0 +1,172 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * Omnidrive in bare PHP: no bundle, no container, no console component. The
+ * registry is built by hand from the provider packages installed - a drive per
+ * factory - and each drive that can be reached is used whole: a file written,
+ * read back, streamed, listed, copied, moved, its metadata and checksum read,
+ * its public and temporary addresses asked (the temporary one fetched), its
+ * local path opened, everything deleted.
+ *
+ *   docker compose run --rm omnidrive bare           # the memory and local drives used whole; S3, SFTP and FTP built, not reached
+ *   docker compose run --rm omnidrive bare --live    # the S3, SFTP and FTP drives too, against the harness's servers (or yours: .env)
+ *   docker compose run --rm omnidrive bare --json    # the same, whole: every class and file loaded; exit 1 if one is a framework's
+ *
+ * Nothing secret is printed: an address is shown without its query string (a
+ * temporary one's signature and key). OMNIDRIVE_AUTOLOAD names another
+ * autoloader than the harness's.
+ */
+
+use AsyncAws\S3\Exception\BucketAlreadyOwnedByYouException;
+use AsyncAws\SimpleS3\SimpleS3Client;
+use Omnidrive\Drive;
+use Omnidrive\Exception\OmnidriveException;
+use Omnidrive\Registry;
+use Omnidrive\Testing\InMemoryDriveFactory;
+
+require getenv('OMNIDRIVE_AUTOLOAD') ?: '/harness/vendor/autoload.php';
+
+$live = in_array('--live', $argv, true);
+
+// A factory per provider package installed, and the memory one of the core.
+$factories = [new InMemoryDriveFactory()];
+foreach (require __DIR__.'/../plugins.php' as [, $class]) {
+    if (class_exists($class)) {
+        $factories[] = new $class();
+    }
+}
+$installed = array_map(static fn ($factory) => $factory->getName(), $factories);
+$config = $reach = [];
+foreach (require __DIR__.'/../config/drives.php' as $name => $drive) {
+    if (in_array($drive['factory'], $installed, true)) {
+        $config[$name] = ['factory' => $drive['factory'], 'options' => $drive['options']];
+        $reach[$name] = !in_array($drive['factory'], ['s3', 'sftp', 'ftp'], true) || ($live && $drive['live']);
+    }
+}
+$registry = new Registry($factories, $config);
+
+$shown = static fn (string $url): string => explode('?', $url, 2)[0].(str_contains($url, '?') ? '?...' : '');
+$step = static function (callable $step) {
+    try {
+        return $step();
+    } catch (OmnidriveException $e) {
+        return ['error' => (new ReflectionClass($e))->getShortName(), 'message' => $e->getMessage()];
+    }
+};
+
+/** @return array<string, mixed> */
+$roundTrip = static function (Drive $drive) use ($step, $shown): array {
+    $dir = 'bare-'.bin2hex(random_bytes(3));
+    $text = 'Hello from bare PHP, '.date(DATE_ATOM);
+    $bytes = random_bytes(1 << 20);
+    $report = [];
+    $report['write'] = $step(static function () use ($drive, $dir, $text) {
+        $drive->write("$dir/hello.txt", $text);
+
+        return $drive->exists("$dir/hello.txt") && $drive->read("$dir/hello.txt") === $text;
+    });
+    $report['size_type'] = $step(static fn () => [$drive->size("$dir/hello.txt"), $drive->mimeType("$dir/hello.txt")]);
+    $report['stream'] = $step(static function () use ($drive, $dir, $bytes) {
+        $in = fopen('php://temp', 'w+b');
+        fwrite($in, $bytes);
+        rewind($in);
+        $drive->writeStream("$dir/big.bin", $in);
+        fclose($in);
+        $out = $drive->readStream("$dir/big.bin");
+        $same = sha1((string) stream_get_contents($out)) === sha1($bytes);
+        fclose($out);
+
+        return $same;
+    });
+    $report['list'] = $step(static fn () => array_map(static fn ($e) => substr($e->path, strlen($dir) + 1).($e->directory ? '/' : ''), [...$drive->list($dir, true)]));
+    $report['copy_move'] = $step(static function () use ($drive, $dir, $text) {
+        $drive->copy("$dir/hello.txt", "$dir/copies/hello.txt");
+        $drive->move("$dir/copies/hello.txt", "$dir/moved/hello.txt");
+
+        return !$drive->exists("$dir/copies/hello.txt") && $drive->read("$dir/moved/hello.txt") === $text;
+    });
+    $report['metadata'] = $step(static fn () => $drive->metadata("$dir/hello.txt")->toArray());
+    $report['checksum'] = $step(static fn () => $drive->checksum("$dir/hello.txt") === md5($text));
+    if ($drive->capabilities()->publicUrls) {
+        $report['public_url'] = $step(static fn () => $shown($drive->publicUrl("$dir/hello.txt")));
+    }
+    if ($drive->capabilities()->temporaryUrls) {
+        $report['temporary_url'] = $step(static function () use ($drive, $dir, $text, $shown) {
+            $url = $drive->temporaryUrl("$dir/hello.txt", new DateTimeImmutable('+5 minutes'));
+            $served = @file_get_contents($url);
+
+            return ['url' => $shown($url), 'signed' => str_contains($url, 'X-Amz-Signature='), 'served' => $served === $text];
+        });
+    }
+    if ($drive->capabilities()->local) {
+        $report['local_path'] = $step(static fn () => file_get_contents((string) $drive->localPath("$dir/hello.txt")) === $text);
+    }
+    $report['delete'] = $step(static function () use ($drive, $dir) {
+        $drive->deleteDirectory($dir);
+
+        return !$drive->exists("$dir/hello.txt") && !$drive->directoryExists($dir);
+    });
+
+    return $report;
+};
+
+$report = ['live' => $live, 'drives' => []];
+foreach ($registry->names() as $name) {
+    $drive = $registry->get($name);
+    $entry = ['factory' => $config[$name]['factory'], 'class' => $drive::class] + $drive->capabilities()->toArray();
+    if ($reach[$name]) {
+        if ('s3' === $config[$name]['factory']) {
+            // The harness's MinIO starts empty: its bucket is made here, by AsyncAws itself.
+            $o = $registry->options($name);
+            $step(static function () use ($o) {
+                try {
+                    (new SimpleS3Client(['region' => $o['region'], 'endpoint' => $o['endpoint'], 'accessKeyId' => $o['key'], 'accessKeySecret' => $o['secret'], 'pathStyleEndpoint' => $o['path_style'] ? 'true' : 'false']))->createBucket(['Bucket' => $o['bucket']])->resolve();
+                } catch (BucketAlreadyOwnedByYouException) {
+                } catch (Throwable $e) {
+                    if (!str_contains($e->getMessage(), 'BucketAlreadyOwnedByYou') && !str_contains($e->getMessage(), 'BucketAlreadyExists')) {
+                        throw $e;
+                    }
+                }
+            });
+        }
+        $entry['used'] = $roundTrip($drive);
+    }
+    $report['drives'][$name] = $entry;
+}
+if (isset($config['local'])) {
+    @rmdir($registry->options('local')['root']);
+}
+
+// What PHP loaded to get there: the proof that no framework was needed.
+$report['symbols'] = [...get_declared_classes(), ...get_declared_interfaces(), ...get_declared_traits()];
+$report['files'] = get_included_files();
+$framework = array_values(preg_grep('~^(?:Symfony\\\\Component\\\\(?:DependencyInjection|Config|HttpKernel|HttpFoundation|Form|Validator|Routing|Console)|Symfony\\\\Bundle|Symfony\\\\Bridge|Illuminate|Laravel|Doctrine|Twig)\\\\~', $report['symbols']));
+$symfony = array_values(array_unique(array_map(static fn (string $s) => implode('\\', array_slice(explode('\\', $s), 0, 3)), preg_grep('~^Symfony\\\\(?!Polyfill)~', $report['symbols']))));
+sort($symfony);
+$report['symfony'] = $symfony;
+$report['flysystem'] = array_values(array_unique(array_map(static fn (string $s) => implode('\\', array_slice(explode('\\', $s), 0, 3)), preg_grep('~^League\\\\Flysystem\\\\~', $report['symbols']))));
+
+if (in_array('--json', $argv, true)) {
+    echo json_encode($report, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), "\n";
+    exit($framework ? 1 : 0);
+}
+
+$said = static fn (mixed $v): string => match (true) {
+    is_array($v) && isset($v['error']) => $v['error'].': '.$v['message'],
+    true === $v => 'yes',
+    false === $v => 'NO',
+    is_array($v) => json_encode($v, JSON_UNESCAPED_SLASHES),
+    default => (string) $v,
+};
+echo 'Omnidrive in bare PHP: the registry built by hand, no bundle, no container; ', $live ? 'the S3, SFTP and FTP drives reached' : 'the S3, SFTP and FTP drives built, not reached (--live reaches them)', ".\n";
+foreach ($report['drives'] as $name => $d) {
+    printf("\n%-7s %s (%s): local %s, public addresses %s, temporary addresses %s\n", $name, $d['factory'], $d['class'], $said($d['local']), $said($d['publicUrls']), $said($d['temporaryUrls']));
+    foreach ($d['used'] ?? [] as $what => $answer) {
+        printf("  %-14s %s\n", $what, $said($answer));
+    }
+}
+echo "\nLoaded from Symfony: ", implode(', ', $symfony) ?: 'nothing', "\n";
+echo 'Engine: ', implode(', ', $report['flysystem']), "\n";
+echo 'Classes of a framework (DependencyInjection, Config, HttpKernel, HttpFoundation, Form, Validator, Routing, Console, a bundle or bridge, Laravel, Doctrine, Twig): ', $framework ? implode(', ', $framework) : 'none', "\n";
+exit($framework ? 1 : 0);

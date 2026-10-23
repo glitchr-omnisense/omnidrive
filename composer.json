@@ -1,0 +1,57 @@
+{
+    "name": "omniscient/omnidrive",
+    "type": "library",
+    "description": "Omnidrive: one contract for reading and writing files wherever they are kept - a directory of this machine, an S3 bucket, an SFTP (SSH) or FTP server - by the name the application gives each storage; Flysystem is the engine behind it, never in its signatures.",
+    "keywords": [
+        "storage",
+        "filesystem",
+        "files",
+        "s3",
+        "sftp",
+        "ftp",
+        "flysystem",
+        "omnidrive"
+    ],
+    "homepage": "https://github.com/glitchr-studio/omnidrive",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Marco Meyer",
+            "email": "marco.meyer@glitchr.io"
+        }
+    ],
+    "require": {
+        "php": ">=8.2",
+        "league/flysystem": "^3.0",
+        "psr/container": "^1.1|^2.0"
+    },
+    "require-dev": {
+        "league/flysystem-local": "^3.0",
+        "league/flysystem-memory": "^3.0",
+        "phpunit/phpunit": "^11.0"
+    },
+    "suggest": {
+        "omnidrive/local": "A directory of this machine (league/flysystem-local)",
+        "omnidrive/s3": "An S3 bucket: AWS, MinIO, Scaleway, OVH, Cloudflare R2... (league/flysystem-async-aws-s3)",
+        "omnidrive/sftp": "An SFTP server, over SSH (league/flysystem-sftp-v3, phpseclib)",
+        "omnidrive/ftp": "An FTP or FTPS server (league/flysystem-ftp, ext-ftp)",
+        "league/flysystem-memory": "Omnidrive\\Testing\\InMemoryDriveFactory: a drive in memory for an application's tests"
+    },
+    "autoload": {
+        "psr-4": {
+            "Omnidrive\\": ""
+        },
+        "exclude-from-classmap": [
+            "/Tests/",
+            "/docker/"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Omnidrive\\Tests\\": "Tests/"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    }
+}

@@ -1,0 +1,229 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\.$#'
+			identifier: foreach.nonIterable
+			count: 2
+			path: Tests/BareTest.php
+
+		-
+			message: '#^Cannot access offset ''checksum''\|''copy_move''\|''delete''\|''stream''\|''write'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 3
+			path: Tests/BareTest.php
+
+		-
+			message: '#^Cannot access offset ''factory'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: Tests/BareTest.php
+
+		-
+			message: '#^Cannot access offset ''list'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: Tests/BareTest.php
+
+		-
+			message: '#^Cannot access offset ''local'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: Tests/BareTest.php
+
+		-
+			message: '#^Cannot access offset ''local_path'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: Tests/BareTest.php
+
+		-
+			message: '#^Cannot access offset ''memory'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: Tests/BareTest.php
+
+		-
+			message: '#^Cannot access offset ''public_url'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: Tests/BareTest.php
+
+		-
+			message: '#^Cannot access offset ''s3'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: Tests/BareTest.php
+
+		-
+			message: '#^Cannot access offset ''served'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: Tests/BareTest.php
+
+		-
+			message: '#^Cannot access offset ''signed'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: Tests/BareTest.php
+
+		-
+			message: '#^Cannot access offset ''size_type'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: Tests/BareTest.php
+
+		-
+			message: '#^Cannot access offset ''temporary_url'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: Tests/BareTest.php
+
+		-
+			message: '#^Cannot access offset ''url'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: Tests/BareTest.php
+
+		-
+			message: '#^Cannot access offset ''used'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 7
+			path: Tests/BareTest.php
+
+		-
+			message: '#^Cannot access offset 1 on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: Tests/BareTest.php
+
+		-
+			message: '#^Cannot cast mixed to string\.$#'
+			identifier: cast.string
+			count: 1
+			path: Tests/BareTest.php
+
+		-
+			message: '#^Method Omnidrive\\Tests\\BareTest\:\:framework\(\) should return list\<string\> but returns array\<mixed\>\.$#'
+			identifier: return.type
+			count: 1
+			path: Tests/BareTest.php
+
+		-
+			message: '#^Method Omnidrive\\Tests\\BareTest\:\:php\(\) should return array\{int, array\<string, mixed\>\} but returns array\{int, array\<mixed\>\}\.$#'
+			identifier: return.type
+			count: 1
+			path: Tests/BareTest.php
+
+		-
+			message: '#^Only iterables can be unpacked, mixed given\.$#'
+			identifier: arrayUnpacking.nonIterable
+			count: 2
+			path: Tests/BareTest.php
+
+		-
+			message: '#^Parameter \#1 \$array of function array_column expects array, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Tests/BareTest.php
+
+		-
+			message: '#^Parameter \#1 \$array of function array_diff expects array, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Tests/BareTest.php
+
+		-
+			message: '#^Parameter \#1 \$array of function array_values expects array, array\|false given\.$#'
+			identifier: argument.type
+			count: 2
+			path: Tests/BareTest.php
+
+		-
+			message: '#^Parameter \#1 \$array of function array_values expects array\<T\>, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Tests/BareTest.php
+
+		-
+			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(mixed\)\: mixed\)\|null, ''realpath'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Tests/BareTest.php
+
+		-
+			message: '#^Parameter \#1 \$paths of static method Omnidrive\\Tests\\BareTest\:\:files\(\) expects list\<string\>, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Tests/BareTest.php
+
+		-
+			message: '#^Parameter \#1 \$paths of static method Omnidrive\\Tests\\BareTest\:\:sorted\(\) expects list\<string\>, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Tests/BareTest.php
+
+		-
+			message: '#^Parameter \#1 \$report of static method Omnidrive\\Tests\\BareTest\:\:framework\(\) expects array\{symbols\: list\<string\>, files\: list\<string\>\}, array\<string, mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Tests/BareTest.php
+
+		-
+			message: '#^Parameter \#1 \$report of static method Omnidrive\\Tests\\BareTest\:\:framework\(\) expects array\{symbols\: list\<string\>, files\: list\<string\>\}, non\-empty\-array\<string, mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Tests/BareTest.php
+
+		-
+			message: '#^Parameter \#2 \$array of static method PHPUnit\\Framework\\Assert\:\:assertArrayHasKey\(\) expects array\<mixed\>\|ArrayAccess\<\(int\|string\), mixed\>, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Tests/BareTest.php
+
+		-
+			message: '#^Parameter \#2 \$array of static method PHPUnit\\Framework\\Assert\:\:assertArrayNotHasKey\(\) expects array\<mixed\>\|ArrayAccess\<\(int\|string\), mixed\>, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Tests/BareTest.php
+
+		-
+			message: '#^Parameter \#2 \$callback of function array_filter expects \(callable\(mixed\)\: bool\)\|null, ''class_exists'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Tests/BareTest.php
+
+		-
+			message: '#^Parameter \#2 \$haystack of static method PHPUnit\\Framework\\Assert\:\:assertContains\(\) expects iterable, mixed given\.$#'
+			identifier: argument.type
+			count: 2
+			path: Tests/BareTest.php
+
+		-
+			message: '#^Parameter \#2 \$haystack of static method PHPUnit\\Framework\\Assert\:\:assertCount\(\) expects Countable\|iterable, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Tests/BareTest.php
+
+		-
+			message: '#^Parameter \#2 \$string of static method PHPUnit\\Framework\\Assert\:\:assertStringEndsWith\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Tests/BareTest.php
+
+		-
+			message: '#^Parameter \#3 \$message of static method PHPUnit\\Framework\\Assert\:\:assertArrayHasKey\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Tests/BareTest.php
+
+		-
+			message: '#^Parameter \#3 \$message of static method PHPUnit\\Framework\\Assert\:\:assertSame\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 2
+			path: Tests/BareTest.php
+
+		-
+			message: '#^Part \$name \(mixed\) of encapsed string cannot be cast to string\.$#'
+			identifier: encapsedStringPart.nonString
+			count: 3
+			path: Tests/BareTest.php

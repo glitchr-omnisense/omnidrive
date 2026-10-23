@@ -1,0 +1,5 @@
+vendor/
+composer.lock
+.phpunit.cache
+docker/.env
+.edit-lock

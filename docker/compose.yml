@@ -1,0 +1,69 @@
+# omniscient/omnidrive with every provider, and a server of each kind to reach:
+#
+#   cp .env.dist .env                                  # nothing to fill: the servers are the harness's own
+#   docker compose run --rm omnidrive bare             # plain PHP: the registry built by hand, memory and local drives
+#                                                      # used whole, the others built; what PHP loaded
+#   docker compose run --rm omnidrive bare --live      # the same, and the S3, SFTP and FTP drives used whole
+#                                                      # against the harness's MinIO, SFTP and FTP servers
+#   docker compose run --rm omnidrive test             # every package's tests, the live ones against those servers
+#   docker compose down                                # the servers stopped, their network removed
+#
+# Providers come from GitHub (branch 1.x) unless their checkout sits under
+# OMNIDRIVE_PLUGINS (../.. in .env when this core sits in the workspace beside
+# them): then that checkout is what runs.
+#
+# The servers are throwaway: their accounts below exist nowhere else. Point the
+# OMNIDRIVE_* variables of .env at servers of your own to check those instead.
+name: omnidrive-harness
+
+services:
+  omnidrive:
+    build: .
+    image: omniscient/omnidrive-harness
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      OMNIDRIVE_S3_ENDPOINT: ${OMNIDRIVE_S3_ENDPOINT:-http://minio:9000}
+      OMNIDRIVE_S3_REGION: ${OMNIDRIVE_S3_REGION:-us-east-1}
+      OMNIDRIVE_S3_BUCKET: ${OMNIDRIVE_S3_BUCKET:-omnidrive}
+      OMNIDRIVE_S3_KEY: ${OMNIDRIVE_S3_KEY:-omnidrive}
+      OMNIDRIVE_S3_SECRET: ${OMNIDRIVE_S3_SECRET:-omnidrive-harness}
+      OMNIDRIVE_S3_PATH_STYLE: ${OMNIDRIVE_S3_PATH_STYLE:-1}
+      OMNIDRIVE_SFTP_HOST: ${OMNIDRIVE_SFTP_HOST:-sftp}
+      OMNIDRIVE_SFTP_PORT: ${OMNIDRIVE_SFTP_PORT:-22}
+      OMNIDRIVE_SFTP_USERNAME: ${OMNIDRIVE_SFTP_USERNAME:-omnidrive}
+      OMNIDRIVE_SFTP_PASSWORD: ${OMNIDRIVE_SFTP_PASSWORD:-omnidrive-harness}
+      OMNIDRIVE_SFTP_ROOT: ${OMNIDRIVE_SFTP_ROOT:-/upload}
+      OMNIDRIVE_FTP_HOST: ${OMNIDRIVE_FTP_HOST:-ftp}
+      OMNIDRIVE_FTP_PORT: ${OMNIDRIVE_FTP_PORT:-21}
+      OMNIDRIVE_FTP_USERNAME: ${OMNIDRIVE_FTP_USERNAME:-omnidrive}
+      OMNIDRIVE_FTP_PASSWORD: ${OMNIDRIVE_FTP_PASSWORD:-omnidrive-harness}
+      OMNIDRIVE_FTP_ROOT: ${OMNIDRIVE_FTP_ROOT:-/}
+    volumes:
+      - ..:/omnidrive/core
+      - ${OMNIDRIVE_PLUGINS:-./plugins}:/omnidrive/plugins:ro
+      - harness:/harness
+    depends_on: [minio, sftp, ftp]
+
+  # S3: MinIO, its root account the harness's keys.
+  minio:
+    image: minio/minio:latest
+    command: server /data
+    environment:
+      MINIO_ROOT_USER: omnidrive
+      MINIO_ROOT_PASSWORD: omnidrive-harness
+
+  # SFTP over SSH: OpenSSH, the user chrooted in its home, writing under /upload.
+  sftp:
+    image: atmoz/sftp:alpine
+    command: omnidrive:omnidrive-harness:1001::upload
+
+  # FTP: Pure-FTPd (docker/ftp), the user chrooted in its home, passive mode on the harness's network.
+  ftp:
+    build: ./ftp
+    image: omniscient/omnidrive-harness-ftp
+    cap_add: [SYS_NICE, DAC_READ_SEARCH] # Debian's Pure-FTPd keeps these two, and exits without them
+
+volumes:
+  harness:

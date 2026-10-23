@@ -10,6 +10,13 @@ use PHPUnit\Framework\TestCase;
 /** The contract on FlysystemDrive over Flysystem's memory adapter: no disk, no network. */
 final class InMemoryDriveTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        if (!class_exists(\League\Flysystem\InMemory\InMemoryFilesystemAdapter::class)) {
+            self::markTestSkipped('league/flysystem-memory is not installed (this package\'s require-dev).');
+        }
+    }
+
     use DriveContractTests;
 
     protected function drive(): Drive

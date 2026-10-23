@@ -13,6 +13,13 @@ use PHPUnit\Framework\TestCase;
 /** The storages a host already has, as drives. */
 final class OperatorDrivesTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        if (!class_exists(\League\Flysystem\InMemory\InMemoryFilesystemAdapter::class)) {
+            self::markTestSkipped('league/flysystem-memory is not installed (this package\'s require-dev).');
+        }
+    }
+
     public function testAHostsOperatorsAreDrivesByTheirNames(): void
     {
         $uploads = new Filesystem(new InMemoryFilesystemAdapter());

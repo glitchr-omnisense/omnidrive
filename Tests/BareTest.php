@@ -24,6 +24,12 @@ final class BareTest extends TestCase
     /** @return array<string, mixed> */
     private static function report(bool $live = false): array
     {
+        // The harness's script and its providers: run where this package is the root (its harness, its
+        // workspace), not from an application's vendor/, where neither the providers nor the memory adapter need be.
+        $root = \Composer\InstalledVersions::getRootPackage()['name'];
+        if (!\in_array($root, ['omniscient/omnidrive', 'omniscient/omnidrive-harness', 'omnidrive/workspace'], true)) {
+            self::markTestSkipped(\sprintf('Run from %s\'s vendor/: the bare script belongs to omnidrive\'s harness.', $root));
+        }
         $key = $live ? 'live' : 'bare';
         if (!isset(self::$reports[$key])) {
             [$status, self::$reports[$key]] = self::php([__DIR__.'/../docker/harness/bin/bare', '--json', ...($live ? ['--live'] : [])]);

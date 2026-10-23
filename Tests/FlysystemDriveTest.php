@@ -34,6 +34,7 @@ final class FlysystemDriveTest extends TestCase
 
     public function testAnOperatorOfAnotherAdapterHasNoLocalFileAndNoAddress(): void
     {
+        self::requiresTheMemoryAdapter();
         $drive = FlysystemDrive::of('elsewhere', new Filesystem(new InMemoryFilesystemAdapter()));
 
         self::assertSame(['local' => false, 'publicUrls' => false, 'temporaryUrls' => false], $drive->capabilities()->toArray());
@@ -65,6 +66,7 @@ final class FlysystemDriveTest extends TestCase
 
     public function testVisibilityOptionsAreTheContractsEnumeration(): void
     {
+        self::requiresTheMemoryAdapter();
         $drive = new FlysystemDrive('memory', new Filesystem(new InMemoryFilesystemAdapter()));
         $drive->write('private.txt', 'p', ['visibility' => Visibility::Private]);
         $drive->write('public.txt', 'p', ['visibility' => 'public']);
@@ -72,5 +74,12 @@ final class FlysystemDriveTest extends TestCase
         self::assertSame(Visibility::Private, $drive->visibility('private.txt'));
         self::assertSame(Visibility::Public, $drive->visibility('public.txt'));
         self::assertSame(Visibility::Private, $drive->metadata('private.txt')->visibility);
+    }
+
+    private static function requiresTheMemoryAdapter(): void
+    {
+        if (!class_exists(InMemoryFilesystemAdapter::class)) {
+            self::markTestSkipped('league/flysystem-memory is not installed (this package\'s require-dev).');
+        }
     }
 }

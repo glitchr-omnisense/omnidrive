@@ -12,6 +12,9 @@ final class RegistryTest extends TestCase
 {
     public function testDrivesAreBuiltOnceByNameFromTheirFactory(): void
     {
+        if (!class_exists(\League\Flysystem\InMemory\InMemoryFilesystemAdapter::class)) {
+            self::markTestSkipped('league/flysystem-memory is not installed (this package\'s require-dev).');
+        }
         $registry = new Registry([new InMemoryDriveFactory()], [
             'uploads' => ['factory' => 'memory', 'options' => ['public_url' => '/uploads']],
             'cache' => ['factory' => 'memory'],

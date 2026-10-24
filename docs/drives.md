@@ -19,18 +19,23 @@ error; a missing file read, measured, moved or copied is a `FileNotFoundExceptio
 |---|---|
 | `DriveException` | an operation failed: `$operation` (read, write, delete, move, copy, list, exists, directory, metadata, checksum, visibility, public_url, temporary_url), `$drive`, `$path`; the engine's exception as `getPrevious()` |
 | `FileNotFoundException` (a `DriveException`) | the file is not there |
-| `NotSupportedException` | the drive does not do that - a public address without `public_url` on SFTP, a temporary one anywhere but S3 |
+| `NotSupportedException` | the drive does not do that - a public address without `public_url` on SFTP, a temporary one where the provider signs none (S3, Azure and Dropbox sign them) |
 | `InvalidConfigException` | an unknown drive or factory, a required option missing |
 
 All implement `Omnidrive\Exception\OmnidriveException`.
 
 `capabilities()` says beforehand what the drive can do besides reading and writing:
 
-| | local | S3 | SFTP | FTP | memory |
-|---|---|---|---|---|---|
-| `local` (`localPath()`) | yes | - | - | - | - |
-| `publicUrls` | with `public_url` | yes (the bucket's address, or `public_url`) | with `public_url` | with `public_url` | with `public_url` |
-| `temporaryUrls` | - | yes (signed) | - | - | - |
+| | local | S3 | SFTP | FTP | WebDAV | Azure | Dropbox | Google Drive | memory |
+|---|---|---|---|---|---|---|---|---|---|
+| `local` (`localPath()`) | yes | - | - | - | - | - | - | - | - |
+| `publicUrls` | with `public_url` | yes (the bucket's address, or `public_url`) | with `public_url` | with `public_url` | yes (the file's WebDAV address, or `public_url`) | with `public_container` or `public_url` | with `public_url` | with `public_url` | with `public_url` |
+| `temporaryUrls` | - | yes (signed) | - | - | - | yes (a read-only SAS) | yes (Dropbox's link, four hours at most) | - | - |
+| a visibility per file | yes | the object's ACL, where the bucket keeps them | yes | yes | - | - | - | yes (shared with anyone who has the link) | yes |
+
+A provider whose adapter's own public address would be a credential - Azure's, for a private
+container, is a SAS valid a thousand years - passes `false` as `drive()`'s `$adapterPublicUrls`:
+the drive then gives a public address only with `public_url`, and says so in its capabilities.
 
 ## Options every drive takes
 

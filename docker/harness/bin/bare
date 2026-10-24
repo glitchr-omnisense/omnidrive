@@ -9,8 +9,9 @@
  * its public and temporary addresses asked (the temporary one fetched), its
  * local path opened, everything deleted.
  *
- *   docker compose run --rm omnidrive bare           # the memory and local drives used whole; S3, SFTP and FTP built, not reached
- *   docker compose run --rm omnidrive bare --live    # the S3, SFTP and FTP drives too, against the harness's servers (or yours: .env)
+ *   docker compose run --rm omnidrive bare           # the memory and local drives used whole; the others built, not reached
+ *   docker compose run --rm omnidrive bare --live    # the S3, SFTP, FTP, WebDAV and Azure drives too, against the harness's
+ *                                                    # servers (or yours: .env); Dropbox and Google Drive with tokens in .env
  *   docker compose run --rm omnidrive bare --json    # the same, whole: every class and file loaded; exit 1 if one is a framework's
  *
  * Nothing secret is printed: an address is shown without its query string (a
@@ -20,6 +21,7 @@
 
 use AsyncAws\S3\Exception\BucketAlreadyOwnedByYouException;
 use AsyncAws\SimpleS3\SimpleS3Client;
+use AzureOss\Storage\Blob\BlobServiceClient;
 use Omnidrive\Drive;
 use Omnidrive\Exception\OmnidriveException;
 use Omnidrive\Registry;
@@ -41,7 +43,7 @@ $config = $reach = [];
 foreach (require __DIR__.'/../config/drives.php' as $name => $drive) {
     if (in_array($drive['factory'], $installed, true)) {
         $config[$name] = ['factory' => $drive['factory'], 'options' => $drive['options']];
-        $reach[$name] = !in_array($drive['factory'], ['s3', 'sftp', 'ftp'], true) || ($live && $drive['live']);
+        $reach[$name] = in_array($drive['factory'], ['memory', 'local'], true) || ($live && $drive['live']);
     }
 }
 $registry = new Registry($factories, $config);
@@ -72,7 +74,9 @@ $roundTrip = static function (Drive $drive) use ($step, $shown): array {
         fwrite($in, $bytes);
         rewind($in);
         $drive->writeStream("$dir/big.bin", $in);
-        fclose($in);
+        if (is_resource($in)) { // an engine may close it once written
+            fclose($in);
+        }
         $out = $drive->readStream("$dir/big.bin");
         $same = sha1((string) stream_get_contents($out)) === sha1($bytes);
         fclose($out);
@@ -96,7 +100,7 @@ $roundTrip = static function (Drive $drive) use ($step, $shown): array {
             $url = $drive->temporaryUrl("$dir/hello.txt", new DateTimeImmutable('+5 minutes'));
             $served = @file_get_contents($url);
 
-            return ['url' => $shown($url), 'signed' => str_contains($url, 'X-Amz-Signature='), 'served' => $served === $text];
+            return ['url' => $shown($url), 'signed' => str_contains($url, 'X-Amz-Signature=') || str_contains($url, 'sig='), 'served' => $served === $text];
         });
     }
     if ($drive->capabilities()->local) {
@@ -130,6 +134,11 @@ foreach ($registry->names() as $name) {
                 }
             });
         }
+        if ('azure' === $config[$name]['factory']) {
+            // Azurite starts empty too: its container is made by the Azure client itself.
+            $o = $registry->options($name);
+            $step(static fn () => BlobServiceClient::fromConnectionString($o['connection_string'])->getContainerClient($o['container'])->createIfNotExists());
+        }
         $entry['used'] = $roundTrip($drive);
     }
     $report['drives'][$name] = $entry;
@@ -159,7 +168,7 @@ $said = static fn (mixed $v): string => match (true) {
     is_array($v) => json_encode($v, JSON_UNESCAPED_SLASHES),
     default => (string) $v,
 };
-echo 'Omnidrive in bare PHP: the registry built by hand, no bundle, no container; ', $live ? 'the S3, SFTP and FTP drives reached' : 'the S3, SFTP and FTP drives built, not reached (--live reaches them)', ".\n";
+echo 'Omnidrive in bare PHP: the registry built by hand, no bundle, no container; ', $live ? 'the remote drives reached where a server or an account is named' : 'the remote drives built, not reached (--live reaches them)', ".\n";
 foreach ($report['drives'] as $name => $d) {
     printf("\n%-7s %s (%s): local %s, public addresses %s, temporary addresses %s\n", $name, $d['factory'], $d['class'], $said($d['local']), $said($d['publicUrls']), $said($d['temporaryUrls']));
     foreach ($d['used'] ?? [] as $what => $answer) {

@@ -60,7 +60,7 @@ final class BareTest extends TestCase
         $report = self::report();
 
         foreach ($report['drives'] as $name => $drive) {
-            if (\in_array($drive['factory'], ['s3', 'sftp', 'ftp'], true)) {
+            if (!\in_array($drive['factory'], ['memory', 'local'], true)) {
                 self::assertArrayNotHasKey('used', $drive, "$name: built, not reached");
                 continue;
             }
@@ -75,7 +75,7 @@ final class BareTest extends TestCase
         self::assertSame('/uploads/', substr((string) $report['drives']['local']['used']['public_url'], 0, 9));
     }
 
-    /** The S3, SFTP and FTP drives against their servers: the harness's, or those .env names. */
+    /** The remote drives against their servers: the harness's (S3, SFTP, FTP, WebDAV, Azure), or those .env names. */
     public function testEachRemoteDriveIsUsedWholeAgainstItsServer(): void
     {
         if (false === getenv('OMNIDRIVE_S3_ENDPOINT') && false === getenv('OMNIDRIVE_SFTP_HOST') && false === getenv('OMNIDRIVE_FTP_HOST')) {
@@ -86,7 +86,7 @@ final class BareTest extends TestCase
         self::assertSame([], self::framework($report), 'still no framework, every engine connected');
         $reached = 0;
         foreach ($report['drives'] as $name => $drive) {
-            if (!isset($drive['used']) || !\in_array($drive['factory'], ['s3', 'sftp', 'ftp'], true)) {
+            if (!isset($drive['used']) || \in_array($drive['factory'], ['memory', 'local'], true)) {
                 continue;
             }
             ++$reached;

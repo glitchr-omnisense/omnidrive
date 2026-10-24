@@ -3,8 +3,10 @@
 #   cp .env.dist .env                                  # nothing to fill: the servers are the harness's own
 #   docker compose run --rm omnidrive bare             # plain PHP: the registry built by hand, memory and local drives
 #                                                      # used whole, the others built; what PHP loaded
-#   docker compose run --rm omnidrive bare --live      # the same, and the S3, SFTP and FTP drives used whole
-#                                                      # against the harness's MinIO, SFTP and FTP servers
+#   docker compose run --rm omnidrive bare --live      # the same, and the S3, SFTP, FTP, WebDAV and Azure drives
+#                                                      # used whole against the harness's MinIO, SFTP, FTP,
+#                                                      # WebDAV and Azurite servers (Dropbox and Google Drive:
+#                                                      # with an account's tokens in .env)
 #   docker compose run --rm omnidrive test             # every package's tests, the live ones against those servers
 #   docker compose down                                # the servers stopped, their network removed
 #
@@ -40,11 +42,17 @@ services:
       OMNIDRIVE_FTP_USERNAME: ${OMNIDRIVE_FTP_USERNAME:-omnidrive}
       OMNIDRIVE_FTP_PASSWORD: ${OMNIDRIVE_FTP_PASSWORD:-omnidrive-harness}
       OMNIDRIVE_FTP_ROOT: ${OMNIDRIVE_FTP_ROOT:-/}
+      OMNIDRIVE_WEBDAV_URI: ${OMNIDRIVE_WEBDAV_URI:-http://webdav/}
+      OMNIDRIVE_WEBDAV_USERNAME: ${OMNIDRIVE_WEBDAV_USERNAME:-omnidrive}
+      OMNIDRIVE_WEBDAV_PASSWORD: ${OMNIDRIVE_WEBDAV_PASSWORD:-omnidrive-harness}
+      # Azurite's own account: its documented development key, the same in every Azurite.
+      OMNIDRIVE_AZURE_CONNECTION_STRING: ${OMNIDRIVE_AZURE_CONNECTION_STRING:-DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1}
+      OMNIDRIVE_AZURE_CONTAINER: ${OMNIDRIVE_AZURE_CONTAINER:-omnidrive}
     volumes:
       - ..:/omnidrive/core
       - ${OMNIDRIVE_PLUGINS:-./plugins}:/omnidrive/plugins:ro
       - harness:/harness
-    depends_on: [minio, sftp, ftp]
+    depends_on: [minio, sftp, ftp, webdav, azurite]
 
   # S3: MinIO, its root account the harness's keys.
   minio:
@@ -64,6 +72,31 @@ services:
     build: ./ftp
     image: omniscient/omnidrive-harness-ftp
     cap_add: [SYS_NICE, DAC_READ_SEARCH] # Debian's Pure-FTPd keeps these two, and exits without them
+
+  # WebDAV: Apache's mod_dav, basic authentication.
+  webdav:
+    image: bytemark/webdav:latest
+    environment:
+      AUTH_TYPE: Basic
+      USERNAME: omnidrive
+      PASSWORD: omnidrive-harness
+
+  # Nextcloud (SQLite, installed at its first start, a minute): not started by default -
+  #   docker compose --profile nextcloud up -d nextcloud
+  #   docker compose run --rm -e OMNIDRIVE_WEBDAV_URI=http://nextcloud/remote.php/dav/files/omnidrive/ omnidrive test --filter Webdav
+  nextcloud:
+    image: nextcloud:apache
+    profiles: [nextcloud]
+    environment:
+      SQLITE_DATABASE: nextcloud
+      NEXTCLOUD_ADMIN_USER: omnidrive
+      NEXTCLOUD_ADMIN_PASSWORD: omnidrive-harness
+      NEXTCLOUD_TRUSTED_DOMAINS: nextcloud
+
+  # Azure Blob Storage: Azurite, Microsoft's emulator (its blob service only).
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite:latest
+    command: azurite-blob --blobHost 0.0.0.0 --skipApiVersionCheck --loose
 
 volumes:
   harness:

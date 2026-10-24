@@ -95,7 +95,9 @@ trait DriveContractTests
         rewind($stream);
 
         $drive->writeStream($path, $stream);
-        fclose($stream);
+        if (\is_resource($stream)) { // an engine may close it once written (Azure's, Dropbox's: their HTTP clients)
+            fclose($stream);
+        }
         $read = $drive->readStream($path);
         self::assertSame($bytes, stream_get_contents($read));
         fclose($read);

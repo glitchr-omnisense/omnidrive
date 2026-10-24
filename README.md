@@ -60,6 +60,15 @@ Flysystem's current major (`^3.0`); a new major is taken when it ships.
 | [`omnidrive/s3`](https://github.com/glitchr-studio/omnidrive-s3) | an S3 bucket - AWS, MinIO, Scaleway, OVHcloud, Cloudflare R2...: region or endpoint, keys, prefix, public and signed addresses | league/flysystem-async-aws-s3 (AsyncAws) |
 | [`omnidrive/sftp`](https://github.com/glitchr-studio/omnidrive-sftp) | a directory of an SFTP server, over SSH: password, private key or agent, the server's key checked | league/flysystem-sftp-v3 (phpseclib 3) |
 | [`omnidrive/ftp`](https://github.com/glitchr-studio/omnidrive-ftp) | a directory of an FTP or FTPS server: passive mode, a server behind NAT | league/flysystem-ftp (ext-ftp) |
+| [`omnidrive/webdav`](https://github.com/glitchr-studio/omnidrive-webdav) | a collection of a WebDAV server - Nextcloud, ownCloud, Apache, nginx: basic, digest or NTLM | league/flysystem-webdav (sabre/dav) |
+| [`omnidrive/azure`](https://github.com/glitchr-studio/omnidrive-azure) | a container of Azure Blob Storage: connection string or account key, prefix, read-only SAS addresses | azure-oss/storage-blob-flysystem (the successor The PHP League names for its abandoned adapter) |
+| [`omnidrive/dropbox`](https://github.com/glitchr-studio/omnidrive-dropbox) | a folder of Dropbox: a refresh token renewed on its own, a team member or space, temporary links | spatie/flysystem-dropbox |
+| [`omnidrive/gdrive`](https://github.com/glitchr-studio/omnidrive-gdrive) | a folder of Google Drive - My Drive, a shared drive, a shared folder: OAuth or a service account, paths by name | masbug/flysystem-google-drive-ext (google/apiclient) |
+
+Not provided: OneDrive. The Flysystem 3 adapters for it are justus/flysystem-onedrive (it requires
+Laravel's illuminate/support, and Microsoft's Graph SDK 1.x, two majors behind) and
+as247/flysystem-onedrive (no release since May 2024, Graph SDK 1.x too); shitware-ltd/flysystem-msgraph
+has had none since 2023. omnidrive/onedrive waits for a maintained, framework-free one.
 
 Every drive also takes `public_url` (a prefix, or a list of them), `visibility`,
 `directory_visibility` and `retain_visibility`; the local, SFTP and FTP drives `permissions` (the
@@ -92,7 +101,7 @@ A framework already has its storages; it gives them as drives rather than config
 ```sh
 cd docker && cp .env.dist .env
 docker compose run --rm omnidrive bare           # plain PHP: memory and local drives used whole, what PHP loaded
-docker compose run --rm omnidrive bare --live    # and S3 (MinIO), SFTP (OpenSSH) and FTP (Pure-FTPd) used whole
+docker compose run --rm omnidrive bare --live    # and S3 (MinIO), SFTP (OpenSSH), FTP (Pure-FTPd), WebDAV (Apache) and Azure (Azurite) used whole
 docker compose run --rm omnidrive test           # every package's tests, the live ones against those servers
 docker compose down
 ```
@@ -109,7 +118,18 @@ docker compose down
   no class of a framework loaded - of Symfony only the HTTP client AsyncAws calls S3 through.
   The S3 requests offline (MockHttpClient): path style, prefix, ACL headers, signatures; PHPStan at
   its highest level on each package installed alone.
-- Not verified: AWS S3 itself and the other S3 services (Scaleway, OVHcloud, R2) - MinIO only; an
+- Verified (2026-10-24, the same harness): the contract's tests live on Apache's mod_dav (WebDAV,
+  bytemark/webdav, basic authentication) and on Nextcloud's WebDAV (the nextcloud:apache image of that day, SQLite,
+  `--profile nextcloud`), a file's WebDAV address served with the account's credentials; live on
+  Azurite (Azure Blob Storage, its development account), a SAS address signed and fetched, the
+  blob's plain address refused; Dropbox against a stand-in of its HTTP API written from Dropbox's
+  documentation (not recorded responses: no account here), with the refresh token's renewal after
+  a 401; Google Drive offline only: the OAuth refresh token and a service account's signed
+  assertion reach Google's token endpoint, the Drive API is asked with the token. `bare --live`
+  uses the WebDAV and Azure drives whole.
+- Not verified: Dropbox and Google Drive themselves - their live tests run with an account's tokens
+  (`OMNIDRIVE_DROPBOX_*`, `OMNIDRIVE_GDRIVE_*`), none was at hand; Azure Blob Storage itself (Azurite
+  only) and an account with a hierarchical namespace; ownCloud; AWS S3 itself and the other S3 services (Scaleway, OVHcloud, R2) - MinIO only; an
   object's ACL (MinIO answers 501 to it; an AWS bucket made since April 2023 refuses ACLs unless
   its Object Ownership allows them: `OMNIDRIVE_S3_ACL=1` runs that test against one that does);
   SFTP with a private key or the SSH agent, and the server's key checked (password only); FTPS;
@@ -121,7 +141,7 @@ docker compose down
 
 `omniscient/omnidrive` and its `omnidrive/*` providers are independent, unofficial clients: none is
 affiliated with, endorsed by or sponsored by the services or the software they reach (Amazon Web
-Services, MinIO, any hosting company) nor by The PHP League, whose Flysystem they run on. Each
+Services, Microsoft, Dropbox, Google, Nextcloud, MinIO, any hosting company) nor by The PHP League, whose Flysystem they run on. Each
 service keeps its own terms and its own prices - a bucket's requests and transfers are billed by its
 provider. The MIT licence covers this code only.
 

@@ -7,8 +7,12 @@ order: 4
 
 `docker/` runs this package with every `omnidrive/*` provider installed - from GitHub (branch 1.x),
 or from the checkouts beside this one when `OMNIDRIVE_PLUGINS=../..` is in `docker/.env` - and a
-server of each kind for the drives to reach: MinIO (S3), OpenSSH (SFTP, atmoz/sftp) and Pure-FTPd
-(FTP, built from `docker/ftp`). Their accounts are throwaway ones, in `compose.yml`.
+server of each kind for the drives to reach: MinIO (S3), OpenSSH (SFTP, atmoz/sftp), Pure-FTPd
+(FTP, built from `docker/ftp`), Apache's mod_dav (WebDAV, bytemark/webdav) and Azurite (Azure Blob
+Storage). Their accounts are throwaway ones, in `compose.yml` (Azurite's is its documented
+development account). A Nextcloud is there too, not started by default (`--profile nextcloud`).
+Dropbox and Google Drive have no stand-in server: their live tests and `bare --live` reach them
+only with an account's tokens in `.env`.
 
 ```sh
 cd docker && cp .env.dist .env
@@ -20,8 +24,8 @@ docker compose down                       # the servers stopped, their network r
 
 | Command | |
 |---|---|
-| `bare` | plain PHP: the registry built by hand, a drive per factory installed; the memory and local drives used whole, the S3, SFTP and FTP drives built but not reached; what PHP loaded (exit 1 if a framework's class is among it) |
-| `bare --live` | the same, and the S3, SFTP and FTP drives used whole against the harness's servers - or yours, named in `.env` |
+| `bare` | plain PHP: the registry built by hand, a drive per factory installed; the memory and local drives used whole, the others built but not reached; what PHP loaded (exit 1 if a framework's class is among it) |
+| `bare --live` | the same, and the S3, SFTP, FTP, WebDAV and Azure drives used whole against the harness's servers - or yours, named in `.env`; Dropbox and Google Drive with tokens in `.env` |
 | `bare --json` | the whole report: every step's answer, every class and file loaded |
 | `test` | every package's tests; the live ones (`*LiveTest`, `BareTest`'s remote case) against the servers |
 | `composer ...`, `php ...`, `sh` | as they are, in the harness |

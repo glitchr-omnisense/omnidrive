@@ -36,4 +36,30 @@ return [
         'password' => $env('OMNIDRIVE_FTP_PASSWORD', 'example'),
         'root' => $env('OMNIDRIVE_FTP_ROOT', '/'),
     ]],
+    'webdav' => ['factory' => 'webdav', 'live' => null !== $env('OMNIDRIVE_WEBDAV_URI'), 'options' => [
+        'base_uri' => $env('OMNIDRIVE_WEBDAV_URI', 'http://webdav.invalid/'),
+        'username' => $env('OMNIDRIVE_WEBDAV_USERNAME', 'example'),
+        'password' => $env('OMNIDRIVE_WEBDAV_PASSWORD', 'example'),
+    ]],
+    'azure' => ['factory' => 'azure', 'live' => null !== $env('OMNIDRIVE_AZURE_CONNECTION_STRING'), 'options' => [
+        'connection_string' => $env('OMNIDRIVE_AZURE_CONNECTION_STRING', 'DefaultEndpointsProtocol=http;AccountName=example;AccountKey=ZXhhbXBsZQ==;BlobEndpoint=http://azure.invalid:10000/example'),
+        'container' => $env('OMNIDRIVE_AZURE_CONTAINER', 'omnidrive'),
+        'prefix' => 'bare',
+    ]],
+    // No server stands in for these two: reached only with an account's tokens (.env).
+    'dropbox' => ['factory' => 'dropbox', 'live' => null !== $env('OMNIDRIVE_DROPBOX_REFRESH_TOKEN') || null !== $env('OMNIDRIVE_DROPBOX_ACCESS_TOKEN'), 'options' => [
+        'refresh_token' => $env('OMNIDRIVE_DROPBOX_REFRESH_TOKEN'),
+        'app_key' => $env('OMNIDRIVE_DROPBOX_APP_KEY'),
+        'app_secret' => $env('OMNIDRIVE_DROPBOX_APP_SECRET'),
+        'access_token' => $env('OMNIDRIVE_DROPBOX_ACCESS_TOKEN', 'example-token'),
+        'prefix' => 'omnidrive-bare',
+    ]],
+    'gdrive' => ['factory' => 'gdrive', 'live' => null !== $env('OMNIDRIVE_GDRIVE_REFRESH_TOKEN') || null !== $env('OMNIDRIVE_GDRIVE_SERVICE_ACCOUNT'), 'options' => [
+        'client_id' => $env('OMNIDRIVE_GDRIVE_CLIENT_ID', 'example.apps.googleusercontent.com'),
+        'client_secret' => $env('OMNIDRIVE_GDRIVE_CLIENT_SECRET', 'example'),
+        'refresh_token' => $env('OMNIDRIVE_GDRIVE_REFRESH_TOKEN', null === $env('OMNIDRIVE_GDRIVE_SERVICE_ACCOUNT') ? 'example' : null),
+        'service_account' => $env('OMNIDRIVE_GDRIVE_SERVICE_ACCOUNT'),
+        'shared_drive_id' => $env('OMNIDRIVE_GDRIVE_SHARED_DRIVE_ID'),
+        'root' => $env('OMNIDRIVE_GDRIVE_ROOT'),
+    ]],
 ];

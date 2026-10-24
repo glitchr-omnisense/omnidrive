@@ -3,7 +3,9 @@
 namespace Omnidrive\Flysystem;
 
 use League\Flysystem\Filesystem;
+use League\Flysystem\Config as FlysystemConfig;
 use League\Flysystem\FilesystemAdapter;
+use League\Flysystem\UnableToGeneratePublicUrl;
 use League\Flysystem\UnixVisibility\PortableVisibilityConverter;
 use League\Flysystem\UrlGeneration\PublicUrlGenerator;
 use League\Flysystem\UrlGeneration\TemporaryUrlGenerator;
@@ -27,7 +29,12 @@ use Omnidrive\Visibility;
  */
 abstract class FlysystemDriveFactory extends DriveFactory
 {
-    protected function drive(string $name, FilesystemAdapter $adapter, Config $c, ?string $localRoot = null): FlysystemDrive
+    /**
+     * @param bool $adapterPublicUrls whether the adapter's own public address is the drive's when no
+     *                                "public_url" is given (false for an adapter whose "public" address
+     *                                is a signed one that never really expires: Azure's)
+     */
+    protected function drive(string $name, FilesystemAdapter $adapter, Config $c, ?string $localRoot = null, bool $adapterPublicUrls = true): FlysystemDrive
     {
         $config = [];
         $publicUrl = $c->list('public_url');
@@ -43,9 +50,17 @@ abstract class FlysystemDriveFactory extends DriveFactory
             $config['retain_visibility'] = $c->bool('retain_visibility', true);
         }
 
-        return new FlysystemDrive($name, new Filesystem($adapter, $config), $localRoot, new Capabilities(
+        $publicUrls = isset($config['public_url']) || ($adapterPublicUrls && $adapter instanceof PublicUrlGenerator);
+        $refused = $publicUrls ? null : new class implements PublicUrlGenerator {
+            public function publicUrl(string $path, FlysystemConfig $config): string
+            {
+                throw UnableToGeneratePublicUrl::noGeneratorConfigured($path);
+            }
+        };
+
+        return new FlysystemDrive($name, new Filesystem($adapter, $config, null, $refused), $localRoot, new Capabilities(
             null !== $localRoot,
-            isset($config['public_url']) || $adapter instanceof PublicUrlGenerator,
+            $publicUrls,
             $adapter instanceof TemporaryUrlGenerator,
         ));
     }

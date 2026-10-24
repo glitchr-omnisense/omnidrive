@@ -48,7 +48,9 @@ final class BareTest extends TestCase
         self::assertSame([], self::framework($report), 'no class nor file of a framework');
         self::assertSame([], array_diff($report['symfony'], ['Symfony\\Component\\HttpClient', 'Symfony\\Contracts\\HttpClient', 'Symfony\\Contracts\\Service']), 'of Symfony, the HTTP client alone');
         $installed = array_values(array_filter(array_column(require __DIR__.'/../docker/harness/plugins.php', 1), 'class_exists'));
-        self::assertNotEmpty($installed, 'at least one provider package beside this one');
+        if (!self::alone()) {
+            self::assertNotEmpty($installed, 'at least one provider package beside this one');
+        }
         foreach ($installed as $factory) {
             self::assertContains($factory, $report['symbols'], 'every provider installed, its factory built');
         }
@@ -71,6 +73,9 @@ final class BareTest extends TestCase
             self::assertSame('text/plain', $drive['used']['size_type'][1] ?? null, $name);
         }
         self::assertSame(['big.bin', 'hello.txt'], self::files($report['drives']['memory']['used']['list']));
+        if (self::alone() && !class_exists('Omnidrive\\Local\\LocalDriveFactory')) {
+            return; // omnidrive/local is not installed beside the package alone: the memory drive was the one at hand.
+        }
         self::assertTrue($report['drives']['local']['used']['local_path'] ?? null, 'the local drive\'s file is a file of this machine');
         self::assertSame('/uploads/', substr((string) $report['drives']['local']['used']['public_url'], 0, 9));
     }
@@ -101,6 +106,15 @@ final class BareTest extends TestCase
             self::assertTrue($temporary['signed'] && $temporary['served'], 'a signed address that serves the file');
             self::assertStringEndsWith('?...', $temporary['url'], 'shown without its signature');
         }
+    }
+
+    /**
+     * The package installed alone (its CI's package job): no provider beside it
+     * unless one is installed by hand. Its harness and its workspace install them all.
+     */
+    private static function alone(): bool
+    {
+        return 'omniscient/omnidrive' === \Composer\InstalledVersions::getRootPackage()['name'];
     }
 
     /**

@@ -1,4 +1,4 @@
-# omniscient/omnidrive
+# omnisense/omnidrive
 
 Omnidrive is one PHP contract for reading and writing files wherever they are kept - a directory
 of this machine, an S3 bucket, an SFTP, FTP or WebDAV server, an Azure container, a Dropbox or
@@ -47,14 +47,14 @@ is set. "Visibility" is whether the drive keeps a visibility per file.
 
 | Package | Factory name | Required options | `local` | `publicUrls` | `temporaryUrls` | Visibility | Engine |
 |---|---|---|---|---|---|---|---|
-| [`omnidrive/local`](https://github.com/glitchr-studio/omnidrive-local) | `local` | `root` | yes | with `public_url` | - | yes (Unix modes) | league/flysystem-local |
-| [`omnidrive/s3`](https://github.com/glitchr-studio/omnidrive-s3) | `s3` | `bucket` | - | yes (the bucket's address, or `public_url`) | yes (presigned) | the object's ACL, where the bucket keeps them | league/flysystem-async-aws-s3 |
-| [`omnidrive/sftp`](https://github.com/glitchr-studio/omnidrive-sftp) | `sftp` | `host`, `username` | - | with `public_url` | - | yes (Unix modes) | league/flysystem-sftp-v3 |
-| [`omnidrive/ftp`](https://github.com/glitchr-studio/omnidrive-ftp) | `ftp` | `host`, `username`, `password` | - | with `public_url` | - | yes (Unix modes) | league/flysystem-ftp |
-| [`omnidrive/webdav`](https://github.com/glitchr-studio/omnidrive-webdav) | `webdav` | `base_uri` | - | yes (the file's WebDAV address, or `public_url`) | - | - | league/flysystem-webdav |
-| [`omnidrive/azure`](https://github.com/glitchr-studio/omnidrive-azure) | `azure` | `container` | - | with `public_container` or `public_url` | yes (read-only SAS) | - | azure-oss/storage-blob-flysystem |
-| [`omnidrive/dropbox`](https://github.com/glitchr-studio/omnidrive-dropbox) | `dropbox` | `refresh_token` (with `app_key`, `app_secret`) or `access_token` | - | with `public_url` | yes (Dropbox's link, four hours at most) | - | spatie/flysystem-dropbox |
-| [`omnidrive/gdrive`](https://github.com/glitchr-studio/omnidrive-gdrive) | `gdrive` | `refresh_token` (with `client_id`, `client_secret`) or `service_account` | - | with `public_url` | - | yes (shared with anyone who has the link) | masbug/flysystem-google-drive-ext |
+| [`omnidrive/local`](https://github.com/glitchr-omnisense/omnidrive-local) | `local` | `root` | yes | with `public_url` | - | yes (Unix modes) | league/flysystem-local |
+| [`omnidrive/s3`](https://github.com/glitchr-omnisense/omnidrive-s3) | `s3` | `bucket` | - | yes (the bucket's address, or `public_url`) | yes (presigned) | the object's ACL, where the bucket keeps them | league/flysystem-async-aws-s3 |
+| [`omnidrive/sftp`](https://github.com/glitchr-omnisense/omnidrive-sftp) | `sftp` | `host`, `username` | - | with `public_url` | - | yes (Unix modes) | league/flysystem-sftp-v3 |
+| [`omnidrive/ftp`](https://github.com/glitchr-omnisense/omnidrive-ftp) | `ftp` | `host`, `username`, `password` | - | with `public_url` | - | yes (Unix modes) | league/flysystem-ftp |
+| [`omnidrive/webdav`](https://github.com/glitchr-omnisense/omnidrive-webdav) | `webdav` | `base_uri` | - | yes (the file's WebDAV address, or `public_url`) | - | - | league/flysystem-webdav |
+| [`omnidrive/azure`](https://github.com/glitchr-omnisense/omnidrive-azure) | `azure` | `container` | - | with `public_container` or `public_url` | yes (read-only SAS) | - | azure-oss/storage-blob-flysystem |
+| [`omnidrive/dropbox`](https://github.com/glitchr-omnisense/omnidrive-dropbox) | `dropbox` | `refresh_token` (with `app_key`, `app_secret`) or `access_token` | - | with `public_url` | yes (Dropbox's link, four hours at most) | - | spatie/flysystem-dropbox |
+| [`omnidrive/gdrive`](https://github.com/glitchr-omnisense/omnidrive-gdrive) | `gdrive` | `refresh_token` (with `client_id`, `client_secret`) or `service_account` | - | with `public_url` | - | yes (shared with anyone who has the link) | masbug/flysystem-google-drive-ext |
 
 The core adds a drive in memory for tests, `Omnidrive\Testing\InMemoryDriveFactory` (`memory`,
 league/flysystem-memory): no `local`, public addresses with `public_url`, a visibility per file.

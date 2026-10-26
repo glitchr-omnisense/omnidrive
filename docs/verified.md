@@ -52,7 +52,7 @@ The capability table of the [index](index.md#providers) was probed with `capabil
 
 ## Responsibility
 
-`omniscient/omnidrive` and its `omnidrive/*` providers are independent, unofficial clients: none is
+`omnisense/omnidrive` and its `omnidrive/*` providers are independent, unofficial clients: none is
 affiliated with, endorsed by or sponsored by the services or the software they reach (Amazon Web
 Services, Microsoft, Dropbox, Google, Nextcloud, MinIO, any hosting company) nor by The PHP League,
 whose Flysystem they run on. Each service keeps its own terms and its own prices - a bucket's

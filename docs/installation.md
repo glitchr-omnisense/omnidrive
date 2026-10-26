@@ -6,13 +6,13 @@ order: 10
 # Installation
 
 ```sh
-composer require omniscient/omnidrive omnidrive/local
+composer require omnisense/omnidrive omnidrive/local
 ```
 
 ## Requirements
 
 - PHP 8.2 or later.
-- `omniscient/omnidrive` requires `league/flysystem` (^3.0) and `psr/container` (^1.1 or ^2.0),
+- `omnisense/omnidrive` requires `league/flysystem` (^3.0) and `psr/container` (^1.1 or ^2.0),
   nothing else: no framework, no HTTP client. Its test drive needs `league/flysystem-memory`
   (suggested), its conformance suite `phpunit/phpunit`.
 - Each provider requires its Flysystem adapter and what that adapter needs: `omnidrive/ftp` the

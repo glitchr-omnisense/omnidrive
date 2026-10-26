@@ -27,7 +27,7 @@ final class BareTest extends TestCase
         // The harness's script and its providers: run where this package is the root (its harness, its
         // workspace), not from an application's vendor/, where neither the providers nor the memory adapter need be.
         $root = \Composer\InstalledVersions::getRootPackage()['name'];
-        if (!\in_array($root, ['omniscient/omnidrive', 'omniscient/omnidrive-harness', 'omnidrive/workspace'], true)) {
+        if (!\in_array($root, ['omnisense/omnidrive', 'omnisense/omnidrive-harness', 'omnidrive/workspace'], true)) {
             self::markTestSkipped(\sprintf('Run from %s\'s vendor/: the bare script belongs to omnidrive\'s harness.', $root));
         }
         $key = $live ? 'live' : 'bare';
@@ -114,7 +114,7 @@ final class BareTest extends TestCase
      */
     private static function alone(): bool
     {
-        return 'omniscient/omnidrive' === \Composer\InstalledVersions::getRootPackage()['name'];
+        return 'omnisense/omnidrive' === \Composer\InstalledVersions::getRootPackage()['name'];
     }
 
     /**

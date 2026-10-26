@@ -1,5 +1,5 @@
 {
-    "name": "omniscient/omnidrive",
+    "name": "omnisense/omnidrive",
     "type": "library",
     "description": "Omnidrive: one contract for reading and writing files wherever they are kept - a directory of this machine, an S3 bucket, an SFTP (SSH) or FTP server - by the name the application gives each storage; Flysystem is the engine behind it, never in its signatures.",
     "keywords": [
@@ -12,7 +12,7 @@
         "flysystem",
         "omnidrive"
     ],
-    "homepage": "https://github.com/glitchr-studio/omnidrive",
+    "homepage": "https://github.com/glitchr-omnisense/omnidrive",
     "license": "MIT",
     "authors": [
         {
@@ -36,6 +36,9 @@
         "omnidrive/sftp": "An SFTP server, over SSH (league/flysystem-sftp-v3, phpseclib)",
         "omnidrive/ftp": "An FTP or FTPS server (league/flysystem-ftp, ext-ftp)",
         "league/flysystem-memory": "Omnidrive\\Testing\\InMemoryDriveFactory: a drive in memory for an application's tests"
+    },
+    "replace": {
+        "omniscient/omnidrive": "self.version"
     },
     "autoload": {
         "psr-4": {

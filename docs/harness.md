@@ -60,10 +60,10 @@ reached: no tokens)
 
 | Service | Image | Account | The drive's variables |
 |---|---|---|---|
-| `omnidrive` | `omniscient/omnidrive-harness` (`docker/Dockerfile`: `php:8.4-cli`, the `ftp` extension, Composer 2) | - | mounts the core at `/omnidrive/core`, the providers' checkouts read-only at `/omnidrive/plugins`, the volume `harness` at `/harness` |
+| `omnidrive` | `omnisense/omnidrive-harness` (`docker/Dockerfile`: `php:8.4-cli`, the `ftp` extension, Composer 2) | - | mounts the core at `/omnidrive/core`, the providers' checkouts read-only at `/omnidrive/plugins`, the volume `harness` at `/harness` |
 | `minio` | `minio/minio:latest` | `omnidrive` / `omnidrive-harness` (root) | `OMNIDRIVE_S3_ENDPOINT` (`http://minio:9000`), `_REGION` (`us-east-1`), `_BUCKET` (`omnidrive`), `_KEY`, `_SECRET`, `_PATH_STYLE` (`1`) |
 | `sftp` | `atmoz/sftp:alpine` | `omnidrive` / `omnidrive-harness`, chrooted, writing under `/upload` | `OMNIDRIVE_SFTP_HOST`, `_PORT`, `_USERNAME`, `_PASSWORD`, `_ROOT` (`/upload`) |
-| `ftp` | `omniscient/omnidrive-harness-ftp` (`docker/ftp/Dockerfile`: Pure-FTPd, passive ports 30000-30009) | `omnidrive` / `omnidrive-harness`, chrooted | `OMNIDRIVE_FTP_HOST`, `_PORT`, `_USERNAME`, `_PASSWORD`, `_ROOT` |
+| `ftp` | `omnisense/omnidrive-harness-ftp` (`docker/ftp/Dockerfile`: Pure-FTPd, passive ports 30000-30009) | `omnidrive` / `omnidrive-harness`, chrooted | `OMNIDRIVE_FTP_HOST`, `_PORT`, `_USERNAME`, `_PASSWORD`, `_ROOT` |
 | `webdav` | `bytemark/webdav:latest` (Apache's mod_dav, basic authentication) | `omnidrive` / `omnidrive-harness` | `OMNIDRIVE_WEBDAV_URI` (`http://webdav/`), `_USERNAME`, `_PASSWORD` |
 | `azurite` | `mcr.microsoft.com/azure-storage/azurite:latest` (blob service only) | Azurite's documented development account `devstoreaccount1` | `OMNIDRIVE_AZURE_CONNECTION_STRING`, `_CONTAINER` (`omnidrive`) |
 | `nextcloud` | `nextcloud:apache` (SQLite), profile `nextcloud`, not started by default | `omnidrive` / `omnidrive-harness` (admin) | `OMNIDRIVE_WEBDAV_URI=http://nextcloud/remote.php/dav/files/omnidrive/` |
@@ -79,7 +79,7 @@ only with an account's tokens there.
 
 `docker/entrypoint.sh` runs `docker/harness/setup.php` (writes `/harness/composer.json` and
 `phpunit.xml`: the core and each provider of `docker/harness/plugins.php` as path repositories
-from their checkouts, or git clones of `https://github.com/glitchr-studio/omnidrive-<slug>.git`;
+from their checkouts, or git clones of `https://github.com/glitchr-omnisense/omnidrive-<slug>.git`;
 `league/flysystem-memory`, PHPUnit 11 and symfony/http-client; one test suite per package),
 installs or updates when `composer.json` changed, then `docker/harness/wait.php` waits up to 30
 seconds for each server the variables name to accept connections (a server that never answers is

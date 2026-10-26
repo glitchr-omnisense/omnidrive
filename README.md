@@ -1,4 +1,4 @@
-# omniscient/omnidrive
+# omnisense/omnidrive
 
 One contract for reading and writing files wherever they are kept - a directory of this machine, an
 S3 bucket, an SFTP (SSH) or FTP server - by the name the application gives each storage.
@@ -56,14 +56,14 @@ Flysystem's current major (`^3.0`); a new major is taken when it ships.
 
 | Package | Drive | Engine |
 |---|---|---|
-| [`omnidrive/local`](https://github.com/glitchr-studio/omnidrive-local) | a directory of this machine: its root, Unix modes, links refused or skipped | league/flysystem-local |
-| [`omnidrive/s3`](https://github.com/glitchr-studio/omnidrive-s3) | an S3 bucket - AWS, MinIO, Scaleway, OVHcloud, Cloudflare R2...: region or endpoint, keys, prefix, public and signed addresses | league/flysystem-async-aws-s3 (AsyncAws) |
-| [`omnidrive/sftp`](https://github.com/glitchr-studio/omnidrive-sftp) | a directory of an SFTP server, over SSH: password, private key or agent, the server's key checked | league/flysystem-sftp-v3 (phpseclib 3) |
-| [`omnidrive/ftp`](https://github.com/glitchr-studio/omnidrive-ftp) | a directory of an FTP or FTPS server: passive mode, a server behind NAT | league/flysystem-ftp (ext-ftp) |
-| [`omnidrive/webdav`](https://github.com/glitchr-studio/omnidrive-webdav) | a collection of a WebDAV server - Nextcloud, ownCloud, Apache, nginx: basic, digest or NTLM | league/flysystem-webdav (sabre/dav) |
-| [`omnidrive/azure`](https://github.com/glitchr-studio/omnidrive-azure) | a container of Azure Blob Storage: connection string or account key, prefix, read-only SAS addresses | azure-oss/storage-blob-flysystem (the successor The PHP League names for its abandoned adapter) |
-| [`omnidrive/dropbox`](https://github.com/glitchr-studio/omnidrive-dropbox) | a folder of Dropbox: a refresh token renewed on its own, a team member or space, temporary links | spatie/flysystem-dropbox |
-| [`omnidrive/gdrive`](https://github.com/glitchr-studio/omnidrive-gdrive) | a folder of Google Drive - My Drive, a shared drive, a shared folder: OAuth or a service account, paths by name | masbug/flysystem-google-drive-ext (google/apiclient) |
+| [`omnidrive/local`](https://github.com/glitchr-omnisense/omnidrive-local) | a directory of this machine: its root, Unix modes, links refused or skipped | league/flysystem-local |
+| [`omnidrive/s3`](https://github.com/glitchr-omnisense/omnidrive-s3) | an S3 bucket - AWS, MinIO, Scaleway, OVHcloud, Cloudflare R2...: region or endpoint, keys, prefix, public and signed addresses | league/flysystem-async-aws-s3 (AsyncAws) |
+| [`omnidrive/sftp`](https://github.com/glitchr-omnisense/omnidrive-sftp) | a directory of an SFTP server, over SSH: password, private key or agent, the server's key checked | league/flysystem-sftp-v3 (phpseclib 3) |
+| [`omnidrive/ftp`](https://github.com/glitchr-omnisense/omnidrive-ftp) | a directory of an FTP or FTPS server: passive mode, a server behind NAT | league/flysystem-ftp (ext-ftp) |
+| [`omnidrive/webdav`](https://github.com/glitchr-omnisense/omnidrive-webdav) | a collection of a WebDAV server - Nextcloud, ownCloud, Apache, nginx: basic, digest or NTLM | league/flysystem-webdav (sabre/dav) |
+| [`omnidrive/azure`](https://github.com/glitchr-omnisense/omnidrive-azure) | a container of Azure Blob Storage: connection string or account key, prefix, read-only SAS addresses | azure-oss/storage-blob-flysystem (the successor The PHP League names for its abandoned adapter) |
+| [`omnidrive/dropbox`](https://github.com/glitchr-omnisense/omnidrive-dropbox) | a folder of Dropbox: a refresh token renewed on its own, a team member or space, temporary links | spatie/flysystem-dropbox |
+| [`omnidrive/gdrive`](https://github.com/glitchr-omnisense/omnidrive-gdrive) | a folder of Google Drive - My Drive, a shared drive, a shared folder: OAuth or a service account, paths by name | masbug/flysystem-google-drive-ext (google/apiclient) |
 
 Not provided: OneDrive. The Flysystem 3 adapters for it are justus/flysystem-onedrive (it requires
 Laravel's illuminate/support, and Microsoft's Graph SDK 1.x, two majors behind) and
@@ -81,17 +81,17 @@ tests every drive passes - for a drive of one's own too.
 A framework already has its storages; it gives them as drives rather than configuring them twice.
 `Omnidrive\Flysystem\OperatorDrives` is `Drives` over a PSR-11 container of Flysystem operators:
 
-- **Symfony**: [omnibridge/symfony](https://github.com/glitchr-studio/omnibridge-symfony) registers
+- **Symfony**: [omnibridge/symfony](https://github.com/glitchr-omnisense/omnibridge-symfony) registers
   `Omnidrive\Drives` from the storages of league/flysystem-bundle's configuration (the services
   tagged `flysystem.storage`), by their names;
-- **Laravel**: [omnibridge/laravel](https://github.com/glitchr-studio/omnibridge-laravel) registers
+- **Laravel**: [omnibridge/laravel](https://github.com/glitchr-omnisense/omnibridge-laravel) registers
   it from the disks of `config/filesystems.php`.
 
-[docs/hosts.md](docs/hosts.md) has both, and how omniscient/omnibase reads its storages through it.
+[docs/hosts.md](docs/hosts.md) has both, and how omnisense/omnibase reads its storages through it.
 
 ## Documentation
 
-The manual, in `docs/` (one page on the omniscient site):
+The manual, in `docs/` (one page on the omnisense site):
 
 - [Overview and providers](docs/index.md)
 - [Installation and a first script](docs/installation.md)
@@ -147,7 +147,7 @@ docker compose down
 
 ## Responsibility
 
-`omniscient/omnidrive` and its `omnidrive/*` providers are independent, unofficial clients: none is
+`omnisense/omnidrive` and its `omnidrive/*` providers are independent, unofficial clients: none is
 affiliated with, endorsed by or sponsored by the services or the software they reach (Amazon Web
 Services, Microsoft, Dropbox, Google, Nextcloud, MinIO, any hosting company) nor by The PHP League, whose Flysystem they run on. Each
 service keeps its own terms and its own prices - a bucket's requests and transfers are billed by its

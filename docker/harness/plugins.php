@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Every provider package: its slug (omnidrive/<slug>, github.com/glitchr-studio/omnidrive-<slug>),
+ * Every provider package: its slug (omnidrive/<slug>, github.com/glitchr-omnisense/omnidrive-<slug>),
  * its tests' namespace and its factory class.
  */
 return [

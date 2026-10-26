@@ -17,7 +17,7 @@ them.
 
 ## Symfony
 
-[omnibridge/symfony](https://github.com/glitchr-studio/omnibridge-symfony) registers
+[omnibridge/symfony](https://github.com/glitchr-omnisense/omnibridge-symfony) registers
 `Omnidrive\Drives` (and `Omnidrive\Flysystem\OperatorDrives`) over a service locator of the services
 tagged `flysystem.storage` by their `storage` name: the storages of league/flysystem-bundle's
 configuration, by the names `config/packages/flysystem.yaml` gives them.
@@ -66,7 +66,7 @@ through the drive is in the host's own storage.
 
 ## Laravel
 
-[omnibridge/laravel](https://github.com/glitchr-studio/omnibridge-laravel) binds `Omnidrive\Drives`
+[omnibridge/laravel](https://github.com/glitchr-omnisense/omnibridge-laravel) binds `Omnidrive\Drives`
 over the disks of `config/filesystems.php`: a drive is the disk of that name, or the disk
 `omnibridge.storages` maps a name to (`'local.uploads' => 'public'`), each disk's own Flysystem
 operator.
@@ -107,7 +107,7 @@ them (`new OperatorDrives($container, ['uploads', 'archive'])`; without a list, 
 `getProvidedServices()` when the container has it, else answers `[]`). With no framework at all,
 the `Registry` is `Drives` built from factories ([Installation](installation.md)).
 
-## omniscient/omnibase
+## omnisense/omnibase
 
 omnibase's `Base\Service\Flysystem` (its storages `local.cache`, `local.uploads`,
 `local.wysiwyg`...) reads them through `Omnidrive\Drives` since omnibase 4.0: whichever host it runs

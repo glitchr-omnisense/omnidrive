@@ -1,4 +1,4 @@
-# omniscient/omnidrive with every provider, and a server of each kind to reach:
+# omnisense/omnidrive with every provider, and a server of each kind to reach:
 #
 #   cp .env.dist .env                                  # nothing to fill: the servers are the harness's own
 #   docker compose run --rm omnidrive bare             # plain PHP: the registry built by hand, memory and local drives
@@ -21,7 +21,7 @@ name: omnidrive-harness
 services:
   omnidrive:
     build: .
-    image: omniscient/omnidrive-harness
+    image: omnisense/omnidrive-harness
     env_file:
       - path: .env
         required: false
@@ -70,7 +70,7 @@ services:
   # FTP: Pure-FTPd (docker/ftp), the user chrooted in its home, passive mode on the harness's network.
   ftp:
     build: ./ftp
-    image: omniscient/omnidrive-harness-ftp
+    image: omnisense/omnidrive-harness-ftp
     cap_add: [SYS_NICE, DAC_READ_SEARCH] # Debian's Pure-FTPd keeps these two, and exits without them
 
   # WebDAV: Apache's mod_dav, basic authentication.

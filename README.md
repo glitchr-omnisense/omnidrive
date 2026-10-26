@@ -91,10 +91,18 @@ A framework already has its storages; it gives them as drives rather than config
 
 ## Documentation
 
+The manual, in `docs/` (one page on the omniscient site):
+
+- [Overview and providers](docs/index.md)
 - [Installation and a first script](docs/installation.md)
-- [Drives: the contract, the options, writing a provider](docs/drives.md)
 - [Hosts: Symfony, Laravel](docs/hosts.md)
+- [Drives: the contract, models, factories, the registry](docs/drives.md)
+- Usage: [files](docs/usage-files.md), [addresses and visibility](docs/usage-addresses.md)
+- [Configuration reference](docs/configuration.md), [Errors](docs/errors.md)
+- [Testing](docs/testing.md): a drive in memory, the conformance suite test by test
 - [The Docker harness: bare PHP, the servers it runs](docs/harness.md)
+- [Writing a provider](docs/providers.md)
+- [Verified, and not](docs/verified.md)
 
 ## Docker: every provider, and a server of each kind
 

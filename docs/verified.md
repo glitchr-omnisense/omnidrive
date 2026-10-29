@@ -47,8 +47,9 @@ The capability table of the [index](index.md#providers) was probed with `capabil
   digest and NTLM authentication.
 - The hosts' pages ([Hosts](hosts.md)) were written from omnibridge's code and its `DrivesTest`s,
   not run in an application for this manual.
-- The known defects found while writing this manual: a refused S3 request read as "not found", a
-  refused Dropbox refresh token read as "not found" ([Errors](errors.md#how-a-failure-becomes-not-found)).
+- The defects found while writing this manual, fixed since: a refused S3 request read as "not
+  found" (omnidrive/s3), a refused Dropbox refresh token read as "not found" (omnidrive/dropbox) -
+  each with its test on a recorded answer ([Errors](errors.md#how-a-failure-becomes-not-found)).
 
 ## Responsibility
 

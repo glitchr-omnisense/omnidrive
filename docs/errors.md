@@ -47,13 +47,9 @@ A failed operation on a file is asked again with `exists()`: when the file is no
 failure is a `FileNotFoundException`, else a `DriveException`. Whatever makes `exists()` answer
 `false` therefore makes the failure "not found":
 
-> [!WARNING]
-> Known defect: on S3, a request refused with HTTP 403 (wrong keys, no permission) makes
-> `exists()` answer `false` and `read()` throw `FileNotFoundException`, where a refused request
-> is expected to be a `DriveException` and `exists()` to fail (seen in the harness with a
-> recorded 403: `The "s3" drive could not read "a.txt": ... HTTP 403 returned`, a
-> `FileNotFoundException`). AWS itself answers 403 for a missing object to a caller without
-> `s3:ListBucket`, so the two cannot always be told apart on S3.
+On S3, a request refused with HTTP 403 (wrong keys, no permission) is a `DriveException`,
+`exists()` included; only a 404 is a missing file - which AWS answers only to a caller allowed
+`s3:ListBucket` (omnidrive/s3's page).
 
 On Dropbox, a refresh token Dropbox refuses fails every operation, `exists()` included, with a
 `DriveException` naming the refusal (omnidrive/dropbox's `TokenRefusedException` as its previous).

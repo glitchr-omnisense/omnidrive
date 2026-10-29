@@ -55,11 +55,8 @@ failure is a `FileNotFoundException`, else a `DriveException`. Whatever makes `e
 > `FileNotFoundException`). AWS itself answers 403 for a missing object to a caller without
 > `s3:ListBucket`, so the two cannot always be told apart on S3.
 
-> [!WARNING]
-> Known defect: on Dropbox, a refresh token Dropbox refuses makes every read a
-> `FileNotFoundException` with no reason and `exists()` answer `false` (spatie's client also
-> emits PHP warnings, its error body having no `error_summary`), where a refused credential is
-> expected to be a `DriveException` naming it.
+On Dropbox, a refresh token Dropbox refuses fails every operation, `exists()` included, with a
+`DriveException` naming the refusal (omnidrive/dropbox's `TokenRefusedException` as its previous).
 
 Operations that need no file (a write, a listing, a directory made) are `DriveException`s.
 `exists()` and `directoryExists()` throw a `DriveException` of operation `exists` only when the

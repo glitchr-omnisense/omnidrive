@@ -43,7 +43,7 @@ class DriveException extends \RuntimeException implements OmnidriveException
         return new static($operation, $drive, $path, $reason, $previous);
     }
 
-    /** The deepest message of the chain: what the engine was told by its server. */
+    /** Every distinct message of the chain, outermost first, joined with " - ": what the engine was told by its server among them. */
     private static function reason(\Throwable $e): string
     {
         $messages = [];

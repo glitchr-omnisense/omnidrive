@@ -98,7 +98,7 @@ The manual, in `docs/` (one page on the omnisense site):
 - [Hosts: Symfony, Laravel](docs/hosts.md)
 - [Drives: the contract, models, factories, the registry](docs/drives.md)
 - Usage: [files](docs/usage-files.md), [addresses and visibility](docs/usage-addresses.md)
-- [Configuration reference](docs/configuration.md), [Errors](docs/errors.md)
+- [Configuration reference](docs/configuration.md), [Errors](docs/errors.md), [Usage policies](docs/policies.md)
 - [Testing](docs/testing.md): a drive in memory, the conformance suite test by test
 - [The Docker harness: bare PHP, the servers it runs](docs/harness.md)
 - [Writing a provider](docs/providers.md)

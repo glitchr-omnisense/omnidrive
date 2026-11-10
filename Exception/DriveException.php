@@ -2,6 +2,8 @@
 
 namespace Omnidrive\Exception;
 
+use Omnisense\Contracts\Http\Redaction;
+
 /**
  * A drive could not do what it was asked: the operation (one of OPERATIONS),
  * the drive and the path are kept; the engine's own exception is the previous
@@ -36,20 +38,27 @@ class DriveException extends \RuntimeException implements OmnidriveException
         parent::__construct(\sprintf('The "%s" drive could not %s "%s"%s', $drive, self::OPERATIONS[$operation] ?? $operation, $path, '' !== $reason ? ': '.$reason : '.'), 0, $previous);
     }
 
+    /**
+     * The failure of an operation, the engine's own exception under it. Its
+     * reason holds no credential (an address's user part and the parameters
+     * named as credentials masked: a pre-signed URL's signature, a WebDAV
+     * server's password), and no trace of the chain keeps its calls'
+     * arguments (the contents written, the client's options and keys).
+     */
     public static function of(string $operation, string $drive, string $path, ?\Throwable $previous = null): static
     {
         $reason = null === $previous ? '' : self::reason($previous);
 
-        return new static($operation, $drive, $path, $reason, $previous);
+        return Redaction::withoutArguments(new static($operation, $drive, $path, $reason, $previous));
     }
 
-    /** Every distinct message of the chain, outermost first, joined with " - ": what the engine was told by its server among them. */
+    /** Every distinct message of the chain, outermost first, joined with " - ": what the engine was told by its server among them, credentials masked. */
     private static function reason(\Throwable $e): string
     {
         $messages = [];
         for ($cause = $e; null !== $cause; $cause = $cause->getPrevious()) {
             if ('' !== trim($cause->getMessage())) {
-                $messages[] = trim($cause->getMessage());
+                $messages[] = Redaction::text(trim($cause->getMessage()));
             }
         }
 

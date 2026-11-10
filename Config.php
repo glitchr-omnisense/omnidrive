@@ -9,25 +9,14 @@ use Omnidrive\Exception\InvalidConfigException;
  * factory's defaults under them, and the keys that must be filled. Options come
  * as configuration and environment variables give them: strings too.
  *
- * @extends \ArrayObject<string, mixed>
+ * omnisense/contracts' Config under the family's prefix ("omnidrive.factory_name",
+ * "omnidrive.required_options"...) and its exception: defaults(), get(), string(),
+ * int() and key() are the kernel's; the drive's wording of a missing option, its
+ * booleans with a default, its octal permissions and its lists are omnidrive's.
  */
-final class Config extends \ArrayObject
+final class Config extends \Omnisense\Contracts\Provider\Config
 {
-    /**
-     * Sets each key not set yet.
-     *
-     * @param array<string, mixed> $defaults
-     */
-    public function defaults(array $defaults): self
-    {
-        foreach ($defaults as $key => $value) {
-            if (!$this->offsetExists($key)) {
-                $this[$key] = $value;
-            }
-        }
-
-        return $this;
-    }
+    public const PREFIX = 'omnidrive';
 
     /** @param list<string> $keys */
     public function validateNotEmpty(array $keys): void
@@ -36,26 +25,6 @@ final class Config extends \ArrayObject
         if ($missing) {
             throw new InvalidConfigException(\sprintf('The "%s" drive needs: %s.', $this->string('omnidrive.factory_name') ?? '?', implode(', ', $missing)));
         }
-    }
-
-    public function get(string $key, mixed $default = null): mixed
-    {
-        return $this->offsetExists($key) ? $this[$key] : $default;
-    }
-
-    /** A string option; null when it is empty. */
-    public function string(string $key): ?string
-    {
-        $value = $this->get($key);
-
-        return \is_scalar($value) && '' !== (string) $value ? (string) $value : null;
-    }
-
-    public function int(string $key, int $default = 0): int
-    {
-        $value = $this->get($key);
-
-        return is_numeric($value) ? (int) $value : $default;
     }
 
     /** An octal permission, as an integer (0644) or a string ("0644", "644"). */
@@ -100,5 +69,11 @@ final class Config extends \ArrayObject
         }
 
         return $list;
+    }
+
+    /** omnidrive's InvalidConfigException, for what the kernel's methods refuse (a "policy" or "usage" that is no map). */
+    protected function invalid(string $message): \Throwable
+    {
+        return new InvalidConfigException($message);
     }
 }

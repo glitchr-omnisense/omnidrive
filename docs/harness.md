@@ -12,13 +12,17 @@ server of each kind for the drives to reach: MinIO (S3), OpenSSH (SFTP, atmoz/sf
 Storage). Their accounts are throwaway ones, in `compose.yml` (Azurite's is its documented
 development account). A Nextcloud is there too, not started by default (`--profile nextcloud`).
 Dropbox and Google Drive have no stand-in server: their live tests and `bare --live` reach them
-only with an account's tokens in `.env`.
+only with an account's tokens in `.env`. omnisense/contracts, the kernel the core requires, comes from
+its checkout when `OMNISENSE_CONTRACTS=../../../omnisense-contracts` is in `docker/.env` (its tests then
+run with the family's), from GitHub otherwise. The image may be another family's harness tagged (PHP
+8.4 with Composer and the ftp extension): the compose file names the entrypoint.
 
 ```sh
 cd docker && cp .env.dist .env
 docker compose run --rm omnidrive bare
 docker compose run --rm omnidrive bare --live
 docker compose run --rm omnidrive test
+docker compose run --rm omnidrive phpstan    # PHPStan at level max on each package, its baseline included
 docker compose down                       # the servers stopped, their network removed
 ```
 

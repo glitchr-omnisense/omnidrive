@@ -8,11 +8,14 @@
 #                                                      # WebDAV and Azurite servers (Dropbox and Google Drive:
 #                                                      # with an account's tokens in .env)
 #   docker compose run --rm omnidrive test             # every package's tests, the live ones against those servers
+#   docker compose run --rm omnidrive phpstan          # PHPStan at level max on each package, its baseline included
 #   docker compose down                                # the servers stopped, their network removed
 #
 # Providers come from GitHub (branch 1.x) unless their checkout sits under
 # OMNIDRIVE_PLUGINS (../.. in .env when this core sits in the workspace beside
-# them): then that checkout is what runs.
+# them): then that checkout is what runs. omnisense/contracts likewise: its checkout under
+# OMNISENSE_CONTRACTS (../../../omnisense-contracts in .env when it sits beside the family's folder),
+# its tests run with the family's; GitHub otherwise.
 #
 # The servers are throwaway: their accounts below exist nowhere else. Point the
 # OMNIDRIVE_* variables of .env at servers of your own to check those instead.
@@ -22,6 +25,9 @@ services:
   omnidrive:
     build: .
     image: omnisense/omnidrive-harness
+    # The image may be another family's harness tagged (PHP 8.4 with Composer and the ftp extension):
+    # the entrypoint is named here, not taken from the image.
+    entrypoint: ["/omnidrive/core/docker/entrypoint.sh"]
     env_file:
       - path: .env
         required: false
@@ -51,6 +57,7 @@ services:
     volumes:
       - ..:/omnidrive/core
       - ${OMNIDRIVE_PLUGINS:-./plugins}:/omnidrive/plugins:ro
+      - ${OMNISENSE_CONTRACTS:-./contracts}:/omnisense/contracts:ro
       - harness:/harness
     depends_on: [minio, sftp, ftp, webdav, azurite]
 

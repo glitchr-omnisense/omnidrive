@@ -154,11 +154,12 @@ drive is built).
 the options every drive takes and returns the `FlysystemDrive`; `unixVisibility($c)` builds
 Flysystem's `PortableVisibilityConverter` from `permissions` and `directory_visibility`.
 
-`Omnidrive\Config` reads options as configuration and environment variables give them:
+`Omnidrive\Config` (omnisense/contracts' `Config` under the prefix `omnidrive`) reads options as
+configuration and environment variables give them:
 
 | Method | |
 |---|---|
-| `defaults(array $defaults): self` | sets each key not set yet |
+| `defaults(array $defaults): static` | sets each key not set yet |
 | `validateNotEmpty(list<string> $keys): void` | the required check above |
 | `get(string $key, mixed $default = null)` | |
 | `string(string $key): ?string` | a scalar as a string, `null` when unset or `''` |
@@ -166,3 +167,4 @@ Flysystem's `PortableVisibilityConverter` from `permissions` and `directory_visi
 | `octal(string $key, int $default): int` | an integer as it is (`0644`), or a string of digits read as octal (`"0644"`, `"644"`) |
 | `bool(string $key, bool $default = false): bool` | `$default` when unset or `''`; `true` for `true` and `1`, `true`, `yes`, `on` |
 | `list(string $key): list<string>` | an array, or a comma-separated string, split and trimmed (`"a, b"` is `['a', 'b']`) |
+| `key()`, `float()`, `map()`, `backoff()`, `guard()` | the kernel's (`key('factory_name')` is `omnidrive.factory_name`); `map()` refuses with omnidrive's `InvalidConfigException` |

@@ -5,15 +5,16 @@ order: 50
 
 # Errors
 
-Every exception of the family implements `Omnidrive\Exception\OmnidriveException` (an interface
-extending `\Throwable`):
+Every exception of the family implements `Omnidrive\Exception\OmnidriveException`, an interface
+extending omnisense/contracts' `Omnisense\Contracts\Exception\ExceptionInterface` (one catch holds the
+failures of every omni family):
 
 | Exception | Extends | Thrown when |
 |---|---|---|
 | `DriveException` | `\RuntimeException` | an operation failed: the engine's `FilesystemException` (a server refused, did not answer, a permission, a path climbing out of the root), a `writeStream()` given something that is not a stream |
 | `FileNotFoundException` | `DriveException` | the file asked for is not there (read, stream, size, type, date, checksum, visibility, move, copy) |
-| `NotSupportedException` | `\LogicException` | the drive does not do that: a public address without one, a temporary address from a drive that signs none, a checksum from an engine that computes none |
-| `InvalidConfigException` | `\InvalidArgumentException` | an unknown drive or factory, a required option missing, an option's value refused (WebDAV's `auth`, Azure's credentials, Dropbox's or Google's token without its client, a service account's file unreadable) |
+| `NotSupportedException` | omnisense/contracts' `NotSupportedException` (a `\LogicException`) | the drive does not do that: a public address without one, a temporary address from a drive that signs none, a checksum from an engine that computes none |
+| `InvalidConfigException` | omnisense/contracts' `InvalidConfigException` (an `\InvalidArgumentException`) | an unknown drive or factory, a required option missing, an option's value refused (WebDAV's `auth`, Azure's credentials, Dropbox's or Google's token without its client, a service account's file unreadable) |
 
 `DriveException` keeps what was asked:
 

@@ -3,6 +3,31 @@
 One contract for reading and writing files wherever they are kept - a directory of this machine, an
 S3 bucket, an SFTP (SSH) or FTP server - by the name the application gives each storage.
 
+## Installation and a first call
+
+```sh
+composer require omnisense/omnidrive omnidrive/local
+```
+
+A directory of this machine needs no account (an S3 bucket, an SFTP, FTP or WebDAV server, Azure,
+Dropbox and Google Drive need one of their own, or a server of one's own):
+
+```php
+require __DIR__.'/vendor/autoload.php';
+
+use Omnidrive\Local\LocalDriveFactory;
+use Omnidrive\Registry;
+
+$drives = new Registry([new LocalDriveFactory()], [
+    'uploads' => ['factory' => 'local', 'options' => ['root' => __DIR__.'/var/uploads', 'public_url' => '/uploads']],
+]);
+$drives->get('uploads')->write('notes/hello.txt', 'Hello.');
+echo $drives->get('uploads')->read('notes/hello.txt'), "\n";       // Hello.
+echo $drives->get('uploads')->publicUrl('notes/hello.txt'), "\n";  // /uploads/notes/hello.txt
+```
+
+Several storages by name, one of them an S3 bucket (`composer require omnidrive/s3`):
+
 ```php
 use Omnidrive\Local\LocalDriveFactory;
 use Omnidrive\Registry;

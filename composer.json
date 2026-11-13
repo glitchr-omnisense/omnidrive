@@ -23,7 +23,7 @@
     "require": {
         "php": ">=8.2",
         "league/flysystem": "^3.0",
-        "omnisense/contracts": "^1.0@dev",
+        "omnisense/contracts": "^1.0",
         "psr/container": "^1.1|^2.0"
     },
     "require-dev": {
@@ -53,6 +53,11 @@
     "autoload-dev": {
         "psr-4": {
             "Omnidrive\\Tests\\": "Tests/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-1.x": "1.x-dev"
         }
     },
     "config": {
